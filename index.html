@@ -1,0 +1,322 @@
+<!DOCTYPE>
+<html>
+
+<head>
+    
+    
+<!-- LEAFLET MAIN -->
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.3.4/dist/leaflet.css"
+   integrity="sha512-puBpdR0798OZvTTbP4A8Ix/l+A4dHDD0DGqYW6RQ+9jxkRFclaxxQb/SJAWZfWAkuyeQUytO7+7N4QKrDh+drA=="
+   crossorigin=""/>
+    
+ <script src="https://unpkg.com/leaflet@1.3.4/dist/leaflet.js"
+   integrity="sha512-nMMmRyTVoLYqjP9hrbed9S+FzjZHW5gY1TWCHA5ckwXZBadntCNs8kEqAWdrb9O7rxbCaA4lKTIWjDXZxflOcA=="
+   crossorigin=""></script>
+    
+    
+<!-- LEAFLET PM -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet.pm@latest/dist/leaflet.pm.css" />
+<script src="https://unpkg.com/leaflet.pm@latest/dist/leaflet.pm.min.js"></script>
+    
+    
+    
+    
+<style>
+    body {
+        background:whitesmoke ;
+    }
+    h1{
+        color:cornflowerblue;
+        text-align: center;
+        font-family: sans-serif;
+        font-size: 1em;
+        background:white;
+    }
+    
+    h2{
+        color:#6473ed;
+        text-align: center;
+        font-family: sans-serif;
+        font-size: 1.5em;
+    
+    }
+    
+    li{
+        font-family: sans-serif;
+        font-size: 1em;
+        
+    }
+    .map {
+        height: 90%;
+        width:48%;
+        border-style:solid;
+        border-color:#6473ed;
+        border-width: 2px;
+        margin:auto;
+    }
+    
+    #map1 { 
+        float: left;
+        },
+    
+    #map2 { 
+    float:right;
+    
+        }
+    .box{
+        width: 50%;
+        text-align:center;
+        
+    }
+     #box1{
+        float:left;
+    }
+    #box2{
+        float:right;
+    }
+        
+   .button {
+  background-color: cornflowerblue;
+  border: none;
+  color: white;
+  padding: 15px 25px;
+  text-align: center;
+  font-size: 16px;
+  cursor: pointer;
+  display: block;
+  margin: 0 auto;
+
+}
+
+.button:hover {
+  background-color:#6473ed;
+}
+    </style>
+    
+
+    </head>
+    
+    
+<body>
+
+    
+<h1>MAPCompare: Made with Leaflet PM</h1>
+    
+<button class = "button" onclick="location.reload();">Clear Layers</button>
+    
+    <div>  
+        <div class ="box" id = "box1">
+            <h2><b>DRAW</b></h2></div>    
+        <div class ="box" id="box2">
+            <h2><b>DRAG</b></h2></div>
+    </div>
+    
+    <div>
+        <div class = "map" id="map1"></div>
+        <div class = "map" id="map2"></div>
+        </div>
+    
+
+    
+<ol>
+    <li>Zoom to desire map extent on the <b>DRAW</b> map pane</li>
+    <li>Draw shape by clicking on map</li>
+    <li>To close, click starting vertice or double click anywhere. 
+        <br><b>NOTE: Zooming will be disabled after shape is completed</b></li>
+    <li>When shape appears on <b>DRAG</b> map pane, click on the drag arrow icon on the toolbar to drag shape around map</li>
+    <li>Click <b>Clear Layers</b> button to restart</li>
+    </ol>
+
+   
+    
+<script>
+    
+    
+    
+    
+    
+    
+    
+    
+// ADDS MAP1    
+var map1 = new L.map('map1', {
+  center: [38.617612, -95.269564],
+  zoom: 3,
+  minZoom:3
+});
+
+    
+//Basemaps and Control    
+//Define Basemaps with only one 'var' statement
+    //Streetmap tiles
+    var streets = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Street_Map/MapServer/tile/{z}/{y}/{x}', {
+	attribution: 'Tiles &copy; Esri &mdash; Source: Esri, DeLorme, NAVTEQ, USGS, Intermap, iPC, NRCAN, Esri Japan, METI, Esri China (Hong Kong), Esri (Thailand), TomTom, 2012'
+}), 
+    //Satellite Tiles
+    imagery = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
+	attribution: 'Tiles &copy; Esri &mdash; Source: Esri, i-cubed, USDA, USGS, AEX, GeoEye, Getmapping, Aerogrid, IGN, IGP, UPR-EGP, and the GIS User Community'
+});    
+    //Basemap toggle
+    var basemaps = {
+        "Streets": streets,
+        "Satellite": imagery
+    };
+    streets.addTo(map1);
+    L.control.layers(basemaps).addTo(map1);
+
+
+
+
+var featureGroup = L.featureGroup().addTo(map1);
+    
+// Initialise the FeatureGroup to store editable layers
+var drawnItems = new L.FeatureGroup();
+map1.addLayer(drawnItems);
+
+
+// define toolbar options
+var options = {
+    position: 'topleft', // toolbar position, options are 'topleft', 'topright', 'bottomleft', 'bottomright'
+    drawMarker: false, // adds button to draw markers
+    drawPolyline: true, // adds button to draw a polyline
+    drawRectangle: false, // adds button to draw a rectangle
+    drawPolygon: true, // adds button to draw a polygon
+    drawCircle: false, // adds button to draw a cricle
+    cutPolygon: false, // adds button to cut a hole in a polygon
+    editMode: false, // adds button to toggle edit mode for all layers
+    dragMode:false, //adds drag shape mode
+    tooltips:false,
+    removalMode: false // adds a button to remove layers
+    
+};
+// add leaflet.pm controls to the map
+map1.pm.addControls(options);
+
+    
+    
+//Define Drawing Options  
+var options ={
+    // snapping
+    snappable: true,
+    snapDistance: 20,
+    snapMiddle: true, // allow snapping to the middle of segments
+    
+    allowSelfIntersection: true,// self intersection
+    templineStyle:// the lines between coordinates/markers
+        {
+        color: 'purple',
+        },
+    hintlineStyle: // the line from the last marker to the mouse cursor
+        {
+        color: 'green',
+        dashArray: [5, 5],
+        },
+    cursorMarker: false, // show a marker at the cursor
+    finishOn: 'dblclick', // finish drawing on double click   
+};
+    
+    
+
+// enable drawing mode for shape - e.g. Poly, Line, etc
+map1.pm.enableDraw('Poly', options);
+
+ 
+// listen to when drawing mode gets enabled
+map1.on('pm:drawstart', function(e) {
+    e.workingLayer; // the leaflet layer displayed while drawing
+});
+
+    
+// Listen when Shape is created    
+map1.on('pm:create', function (e) {
+  var layer = e.layer;
+  feature = layer.feature;
+  var points = JSON.stringify(e.layer.toGeoJSON());
+//Freezes Zoom Control after shape creation
+    drawnItems.addLayer(layer);
+    map1.scrollWheelZoom.disable();
+    map1.doubleClickZoom.disable();
+    map1.zoomControl.disable();
+});
+
+
+
+map1.on('pm:edit', function (e) {
+	var layers = e.layers;
+	layers.eachLayer(function (layer) {
+		
+	});
+});
+
+
+    
+    
+    
+    
+
+
+
+//ADD MAP2
+var map2 = new L.map('map2', {
+  center: [38.617612, -95.269564],
+  zoom: 3,
+  minZoom:3
+});
+
+    var streets = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Street_Map/MapServer/tile/{z}/{y}/{x}', {
+	attribution: 'Tiles &copy; Esri &mdash; Source: Esri, DeLorme, NAVTEQ, USGS, Intermap, iPC, NRCAN, Esri Japan, METI, Esri China (Hong Kong), Esri (Thailand), TomTom, 2012'
+}), 
+    imagery = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
+	attribution: 'Tiles &copy; Esri &mdash; Source: Esri, i-cubed, USDA, USGS, AEX, GeoEye, Getmapping, Aerogrid, IGN, IGP, UPR-EGP, and the GIS User Community'
+});
+
+    var basemaps = {
+        "Streets": streets,
+        "Satellite": imagery
+    };
+    streets.addTo(map2);
+    L.control.layers(basemaps).addTo(map2);
+    
+
+var featureGroup = L.featureGroup().addTo(map2);
+// Initialise the FeatureGroup to store editable layers
+var drawnItems = new L.FeatureGroup();
+map2.addLayer(drawnItems);
+
+// define toolbar options
+var options = {
+    position: 'topleft', // toolbar position, options are 'topleft', 'topright', 'bottomleft', 'bottomright'
+    drawMarker: false, // adds button to draw markers
+    drawPolyline: false, // adds button to draw a polyline
+    drawRectangle: false, // adds button to draw a rectangle
+    drawPolygon: false, // adds button to draw a polygon
+    drawCircle: false, // adds button to draw a cricle
+    cutPolygon: false, // adds button to cut a hole in a polygon
+    editMode: false, // adds button to toggle edit mode for all layers
+    tooltips:false,
+    removalMode: false // adds a button to remove layers
+};
+
+
+// add leaflet.pm controls to the map
+map2.pm.addControls(options);
+
+    
+
+map2.on('pm:create', function (e) {
+	var layer = e.layer;
+  feature = layer.feature;
+	// Do whatever else 
+    drawnItems.addLayer(layer);
+    
+});
+
+
+
+
+    </script>
+
+    </body>
+
+
+</html>
